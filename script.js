@@ -23,8 +23,6 @@ function loadData(key) {
 let tasks = loadData("unimate_tasks");
 let schedule = loadData("unimate_schedule");
 
-
-// Защита текста от HTML-вставок
 function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, character => {
         const symbols = {
@@ -58,13 +56,11 @@ function updateDate() {
 
 
 // ==========================================
-// 3. ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+// 3. НАВИГАЦИЯ
 // ==========================================
 
 function showPage(pageId) {
-    const pages = document.querySelectorAll(".page");
-
-    pages.forEach(page => {
+    document.querySelectorAll(".page").forEach(page => {
         page.classList.remove("active");
     });
 
@@ -99,8 +95,6 @@ function showPage(pageId) {
     document.getElementById("sidebar")?.classList.remove("open");
 }
 
-
-// Боковое меню
 document.querySelectorAll(".nav-link").forEach(link => {
     link.addEventListener("click", event => {
         event.preventDefault();
@@ -108,16 +102,12 @@ document.querySelectorAll(".nav-link").forEach(link => {
     });
 });
 
-
-// Кнопки перехода
 document.querySelectorAll("[data-goto]").forEach(button => {
     button.addEventListener("click", () => {
         showPage(button.dataset.goto);
     });
 });
 
-
-// Мобильное меню
 const menuToggle = document.getElementById("menuToggle");
 
 if (menuToggle) {
@@ -135,35 +125,29 @@ const taskForm = document.getElementById("taskForm");
 
 let activeFilter = "all";
 
-
 function renderTasks() {
     const dashboardTasks = document.getElementById("dashboardTasks");
     const allTasks = document.getElementById("allTasks");
 
-    if (!dashboardTasks || !allTasks) return;
+    if (!dashboardTasks || !allTasks) {
+        updateStatistics();
+        return;
+    }
 
     dashboardTasks.innerHTML = "";
     allTasks.innerHTML = "";
 
-    // Фильтрация
     const filteredTasks = tasks
         .map((task, index) => ({
             ...task,
             originalIndex: index
         }))
         .filter(task => {
-            if (activeFilter === "pending") {
-                return !task.completed;
-            }
-
-            if (activeFilter === "completed") {
-                return task.completed;
-            }
-
+            if (activeFilter === "pending") return !task.completed;
+            if (activeFilter === "completed") return task.completed;
             return true;
         });
 
-    // Пустое состояние
     if (filteredTasks.length === 0) {
         const message = activeFilter === "completed"
             ? "Пока нет выполненных заданий"
@@ -180,12 +164,10 @@ function renderTasks() {
         `;
     }
 
-    // Все задания
     filteredTasks.forEach(task => {
         allTasks.appendChild(createTaskElement(task));
     });
 
-    // Последние 4 задания на главной
     tasks.slice(-4).reverse().forEach(task => {
         dashboardTasks.appendChild(
             createTaskElement({
@@ -198,8 +180,6 @@ function renderTasks() {
     updateStatistics();
 }
 
-
-// Создание карточки задания
 function createTaskElement(task, compact = false) {
     const element = document.createElement("div");
 
@@ -236,23 +216,19 @@ function createTaskElement(task, compact = false) {
         </div>
     `;
 
-    // Выполнение задания
     const checkbox = element.querySelector('input[type="checkbox"]');
 
     checkbox.addEventListener("change", () => {
         tasks[task.originalIndex].completed = checkbox.checked;
-
         saveData("unimate_tasks", tasks);
         renderTasks();
     });
 
-    // Удаление задания
     const deleteButton = element.querySelector(".delete-task");
 
     if (deleteButton) {
         deleteButton.addEventListener("click", () => {
             tasks.splice(task.originalIndex, 1);
-
             saveData("unimate_tasks", tasks);
             renderTasks();
         });
@@ -261,15 +237,13 @@ function createTaskElement(task, compact = false) {
     return element;
 }
 
-
-// Добавление задания
 if (taskForm) {
     taskForm.addEventListener("submit", event => {
         event.preventDefault();
 
-        const title = document.getElementById("taskInput").value.trim();
-        const date = document.getElementById("taskDate").value;
-        const priority = document.getElementById("taskPriority").value;
+        const title = document.getElementById("taskInput")?.value.trim();
+        const date = document.getElementById("taskDate")?.value || "";
+        const priority = document.getElementById("taskPriority")?.value || "normal";
 
         if (!title) return;
 
@@ -282,7 +256,6 @@ if (taskForm) {
         });
 
         saveData("unimate_tasks", tasks);
-
         taskForm.reset();
 
         activeFilter = "all";
@@ -309,7 +282,6 @@ function setActiveFilterButton(filter) {
 document.querySelectorAll(".filter-btn").forEach(button => {
     button.addEventListener("click", () => {
         activeFilter = button.dataset.filter;
-
         setActiveFilterButton(activeFilter);
         renderTasks();
     });
@@ -335,85 +307,75 @@ function renderSchedule() {
         "Среда",
         "Четверг",
         "Пятница",
-        "Суббота"
+        "Суббота",
+        "Воскресенье"
     ];
 
-    days.forEach(day => {
-        const dayItems = schedule
-            .map((item, index) => ({
-                ...item,
-                originalIndex: index
-            }))
-            .filter(item => item.day === day)
-            .sort((a, b) => a.time.localeCompare(b.time));
+    const sortedSchedule = [...schedule].sort((a, b) => {
+        const dayDifference = days.indexOf(a.day) - days.indexOf(b.day);
 
-        if (dayItems.length === 0) return;
+        if (dayDifference !== 0) return dayDifference;
 
-        const dayBlock = document.createElement("div");
-        dayBlock.className = "schedule-day";
-
-        dayBlock.innerHTML = `<h3>${escapeHTML(day)}</h3>`;
-
-        dayItems.forEach(item => {
-            const lesson = document.createElement("div");
-
-            lesson.className = "schedule-item";
-
-            lesson.innerHTML = `
-                <div>
-                    <strong>${escapeHTML(item.subject)}</strong>
-                    <p>${escapeHTML(item.time)}</p>
-                </div>
-
-                <button type="button" class="delete-schedule">
-                    Удалить
-                </button>
-            `;
-
-            lesson.querySelector(".delete-schedule").addEventListener("click", () => {
-                schedule.splice(item.originalIndex, 1);
-
-                saveData("unimate_schedule", schedule);
-                renderSchedule();
-            });
-
-            dayBlock.appendChild(lesson);
-        });
-
-        list.appendChild(dayBlock);
+        return (a.time || "").localeCompare(b.time || "");
     });
 
-    if (schedule.length === 0) {
+    if (sortedSchedule.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
-                <i class="fa-regular fa-calendar"></i>
+                <i class="fa-solid fa-calendar"></i>
                 <p>Расписание пока пустое</p>
                 <span>Добавь своё первое занятие.</span>
             </div>
         `;
+        return;
     }
+
+    sortedSchedule.forEach(item => {
+        const originalIndex = schedule.indexOf(item);
+        const element = document.createElement("div");
+
+        element.className = "schedule-item";
+
+        element.innerHTML = `
+            <div class="schedule-info">
+                <strong>${escapeHTML(item.name)}</strong>
+                <span>${escapeHTML(item.day)}</span>
+                <small>${escapeHTML(item.time)}</small>
+            </div>
+
+            <button type="button" class="delete-schedule">
+                Удалить
+            </button>
+        `;
+
+        element.querySelector(".delete-schedule").addEventListener("click", () => {
+            schedule.splice(originalIndex, 1);
+            saveData("unimate_schedule", schedule);
+            renderSchedule();
+        });
+
+        list.appendChild(element);
+    });
 }
 
-
-// Добавление занятия
 if (scheduleForm) {
     scheduleForm.addEventListener("submit", event => {
         event.preventDefault();
 
-        const subject = document.getElementById("subjectName").value.trim();
-        const day = document.getElementById("subjectDay").value;
-        const time = document.getElementById("subjectTime").value;
+        const name = document.getElementById("subjectName")?.value.trim();
+        const day = document.getElementById("subjectDay")?.value;
+        const time = document.getElementById("subjectTime")?.value;
 
-        if (!subject || !day || !time) return;
+        if (!name || !day || !time) return;
 
         schedule.push({
-            subject,
+            id: Date.now(),
+            name,
             day,
             time
         });
 
         saveData("unimate_schedule", schedule);
-
         scheduleForm.reset();
         renderSchedule();
     });
@@ -421,17 +383,18 @@ if (scheduleForm) {
 
 
 // ==========================================
-// 7. AI-ПОМОЩНИК UNIMATE
+// 7. AI-ПОМОЩНИК GEMINI
 // ==========================================
+
+// Онлайн-сервер Render
+const AI_SERVER = "https://unimate-qgcb.onrender.com/api/chat";
 
 const chatForm = document.getElementById("chatForm");
 const chatInput = document.getElementById("chatInput");
 const chatMessages = document.getElementById("chatMessages");
 
-
-// Добавление сообщения
 function addMessage(text, type) {
-    if (!chatMessages) return null;
+    if (!chatMessages) return;
 
     const message = document.createElement("div");
 
@@ -439,105 +402,84 @@ function addMessage(text, type) {
         ? "message user-message"
         : "message assistant-message";
 
-    if (type === "assistant") {
-        message.innerHTML = `
-            <div class="message-avatar">
-                <i class="fa-solid fa-robot"></i>
-            </div>
+    const content = document.createElement("div");
+    content.className = "message-content";
 
-            <div class="message-content">
-                <strong>UniMate</strong>
-                <p></p>
-            </div>
-        `;
+    // textContent защищает от выполнения HTML-кода
+    content.textContent = text;
 
-        message.querySelector("p").textContent = text;
-    } else {
-        message.textContent = text;
-    }
-
+    message.appendChild(content);
     chatMessages.appendChild(message);
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     return message;
 }
 
-
-// Индикатор ожидания
 function showTyping() {
-    const message = addMessage("UniMate думает...", "assistant");
+    if (!chatMessages) return null;
 
-    if (message) {
-        message.classList.add("typing-message");
-    }
+    const typing = document.createElement("div");
 
-    return message;
+    typing.className = "message assistant-message typing-message";
+    typing.textContent = "UniMate печатает...";
+
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return typing;
 }
 
-
-// Настоящий запрос Gemini
 async function sendToGemini(question) {
     const typingMessage = showTyping();
 
     try {
-        const response = await fetch("http://localhost:3000/api/chat", {
+        const response = await fetch(AI_SERVER, {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify({
                 message: question
             })
         });
 
-        // Проверяем, получен ли ответ
-        if (!response.ok) {
-            const errorData = await response.json();
-
-            throw new Error(
-                errorData.error || `Ошибка сервера: ${response.status}`
-            );
-        }
-
         const data = await response.json();
 
-        if (typingMessage) {
-            typingMessage.remove();
+        if (!response.ok) {
+            throw new Error(
+                data.error || `Ошибка сервера: ${response.status}`
+            );
         }
 
         if (!data.reply) {
-            addMessage(
-                "ИИ не вернул ответ. Попробуй задать вопрос ещё раз.",
-                "assistant"
-            );
+            throw new Error("ИИ вернул пустой ответ.");
+        }
 
-            return;
+        if (typingMessage) {
+            typingMessage.remove();
         }
 
         addMessage(data.reply, "assistant");
 
     } catch (error) {
-        console.error("Ошибка UniMate AI:", error);
-
         if (typingMessage) {
             typingMessage.remove();
         }
 
+        console.error("Ошибка UniMate:", error);
+
         addMessage(
-            "Не удалось получить ответ от ИИ.\n\nПричина: " +
-            error.message +
-            "\n\nПроверь, запущен ли сервер UniMate.",
+            "Не удалось получить ответ от ИИ.\n\n" +
+            "Причина: " + error.message +
+            "\n\nПопробуй отправить сообщение ещё раз.",
             "assistant"
         );
     }
 }
 
-
-// Отправка сообщения
 if (chatForm && chatInput) {
-    chatForm.addEventListener("submit", async event => {
+    chatForm.addEventListener("submit", event => {
         event.preventDefault();
 
         const question = chatInput.value.trim();
@@ -548,25 +490,25 @@ if (chatForm && chatInput) {
 
         chatInput.value = "";
 
-        await sendToGemini(question);
+        sendToGemini(question);
     });
 }
 
-
-// Быстрые вопросы
+// Кнопки с готовыми примерами вопросов
 document.querySelectorAll(".suggestion-btn").forEach(button => {
     button.addEventListener("click", () => {
-        if (!chatInput || !chatForm) return;
+        const question = button.textContent.trim();
 
-        chatInput.value = button.textContent.trim();
+        if (!question || !chatInput || !chatForm) return;
 
+        chatInput.value = question;
         chatForm.requestSubmit();
     });
 });
 
 
 // ==========================================
-// 8. ТАЙМЕР POMODORO
+// 8. ФОКУС-ТАЙМЕР POMODORO
 // ==========================================
 
 let timerSeconds = 25 * 60;
@@ -575,8 +517,8 @@ let timerRunning = false;
 
 const timerDisplay = document.getElementById("timerDisplay");
 const timerStatus = document.getElementById("timerStatus");
-const startTimer = document.getElementById("startTimer");
-const resetTimer = document.getElementById("resetTimer");
+const startTimerButton = document.getElementById("startTimer");
+const resetTimerButton = document.getElementById("resetTimer");
 
 function updateTimerDisplay() {
     if (!timerDisplay) return;
@@ -585,111 +527,75 @@ function updateTimerDisplay() {
     const seconds = timerSeconds % 60;
 
     timerDisplay.textContent =
-        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0");
 }
 
-function stopTimer() {
-    clearInterval(timerInterval);
-
-    timerInterval = null;
-    timerRunning = false;
-
-    if (startTimer) {
-        startTimer.innerHTML = '<i class="fa-solid fa-play"></i> Продолжить';
+function updateTimerStatus(text) {
+    if (timerStatus) {
+        timerStatus.textContent = text;
     }
 }
 
-function startCountdown() {
-    if (timerRunning) return;
+function startTimer() {
+    if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+
+        if (startTimerButton) {
+            startTimerButton.textContent = "Продолжить";
+        }
+
+        updateTimerStatus("Таймер на паузе");
+        return;
+    }
 
     timerRunning = true;
 
-    if (startTimer) {
-        startTimer.innerHTML = '<i class="fa-solid fa-pause"></i> Пауза';
+    if (startTimerButton) {
+        startTimerButton.textContent = "Пауза";
     }
 
-    if (timerStatus) {
-        timerStatus.textContent = "Время продуктивности";
-    }
+    updateTimerStatus("Время сосредоточиться!");
 
     timerInterval = setInterval(() => {
         if (timerSeconds > 0) {
             timerSeconds--;
             updateTimerDisplay();
         } else {
-            stopTimer();
+            clearInterval(timerInterval);
+            timerRunning = false;
 
-            if (timerStatus) {
-                timerStatus.textContent = "Время вышло! Сделай перерыв 🎉";
+            if (startTimerButton) {
+                startTimerButton.textContent = "Начать заново";
             }
 
-            alert("Время вышло! Отличная работа!");
+            updateTimerStatus("Отличная работа! Время отдохнуть 🎉");
         }
     }, 1000);
 }
 
+function resetTimer() {
+    clearInterval(timerInterval);
 
-// Старт и пауза
-if (startTimer) {
-    startTimer.addEventListener("click", () => {
-        if (timerRunning) {
-            stopTimer();
-        } else {
-            startCountdown();
-        }
-    });
+    timerSeconds = 25 * 60;
+    timerRunning = false;
+
+    updateTimerDisplay();
+    updateTimerStatus("Готов к новой сессии?");
+
+    if (startTimerButton) {
+        startTimerButton.textContent = "Начать";
+    }
 }
 
-
-// Сброс
-if (resetTimer) {
-    resetTimer.addEventListener("click", () => {
-        stopTimer();
-
-        const activeTab = document.querySelector(".timer-tab.active");
-
-        timerSeconds = Number(activeTab?.dataset.minutes || 25) * 60;
-
-        updateTimerDisplay();
-
-        if (startTimer) {
-            startTimer.innerHTML = '<i class="fa-solid fa-play"></i> Начать';
-        }
-
-        if (timerStatus) {
-            timerStatus.textContent = "Время продуктивности";
-        }
-    });
+if (startTimerButton) {
+    startTimerButton.addEventListener("click", startTimer);
 }
 
-
-// Переключение режимов
-document.querySelectorAll(".timer-tab").forEach(button => {
-    button.addEventListener("click", () => {
-        stopTimer();
-
-        document.querySelectorAll(".timer-tab").forEach(tab => {
-            tab.classList.remove("active");
-        });
-
-        button.classList.add("active");
-
-        timerSeconds = Number(button.dataset.minutes) * 60;
-
-        updateTimerDisplay();
-
-        if (startTimer) {
-            startTimer.innerHTML = '<i class="fa-solid fa-play"></i> Начать';
-        }
-
-        if (timerStatus) {
-            timerStatus.textContent =
-                button.dataset.minutes === "25"
-                    ? "Время продуктивности"
-                    : "Время отдыха";
-        }
-    });
-});
+if (resetTimerButton) {
+    resetTimerButton.addEventListener("click", resetTimer);
+}
 
 
 // ==========================================
@@ -701,58 +607,62 @@ function updateStatistics() {
     const completed = tasks.filter(task => task.completed).length;
     const pending = total - completed;
 
-    const productivity = total === 0
-        ? 0
-        : Math.round((completed / total) * 100);
+    const percent = total > 0
+        ? Math.round((completed / total) * 100)
+        : 0;
 
-    // Главная страница
-    setText("totalTasks", total);
-    setText("completedTasks", completed);
-    setText("pendingTasks", pending);
-    setText("productivity", productivity + "%");
+    const elements = {
+        totalTasks: total,
+        completedTasks: completed,
+        pendingTasks: pending,
+        progressPercent: percent,
+        totalCount: total,
+        completedCount: completed,
+        pendingCount: pending
+    };
 
-    // Раздел прогресса
-    setText("progressTotal", total);
-    setText("progressCompleted", completed);
-    setText("progressPending", pending);
-    setText("progressResult", productivity + "%");
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
 
-    setText("progressPercent", productivity + "%");
-    setText("progressBarText", productivity + "% выполнено");
+        if (element) {
+            element.textContent = value;
+        }
+    });
 
-    // Круговой прогресс
-    const circle = document.getElementById("progressCircle");
+    const progressBar = document.getElementById("progressBarFill");
 
-    if (circle) {
-        circle.style.background =
-            `conic-gradient(#8b5cf6 ${productivity * 3.6}deg, #29263b 0deg)`;
+    if (progressBar) {
+        progressBar.style.width = percent + "%";
     }
 
-    // Полоса прогресса
-    const bar = document.getElementById("progressBarFill");
+    const progressCircle = document.getElementById("progressCircle");
 
-    if (bar) {
-        bar.style.width = productivity + "%";
-    }
-}
+    if (progressCircle) {
+        progressCircle.style.setProperty(
+            "--progress",
+            percent + "%"
+        );
 
-function setText(id, value) {
-    const element = document.getElementById(id);
-
-    if (element) {
-        element.textContent = value;
+        progressCircle.style.background =
+            `conic-gradient(#8b5cf6 ${percent}%, #29243b ${percent}%)`;
     }
 }
 
 
 // ==========================================
-// 10. ЗАПУСК UNIMATE
+// 10. ЗАПУСК ПРИЛОЖЕНИЯ
 // ==========================================
 
-updateDate();
-renderTasks();
-renderSchedule();
-updateTimerDisplay();
-updateStatistics();
+function initUniMate() {
+    updateDate();
 
-console.log("UniMate успешно запущен! 💜");
+    renderTasks();
+    renderSchedule();
+
+    updateTimerDisplay();
+    updateStatistics();
+
+    console.log("UniMate успешно запущен!");
+}
+
+initUniMate();
