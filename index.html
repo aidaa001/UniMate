@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="UniMate — твой умный помощник в учёбе">
+    <title>UniMate — Student Assistant</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- БОКОВОЕ МЕНЮ -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <span>Uni<span class="logo-accent">Mate</span></span>
+        </div>
+
+        <div class="menu-label">МЕНЮ</div>
+
+        <nav class="navigation">
+
+            <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Главная</span>
+            </a>
+
+            <a href="#schedule" class="nav-link" data-page="schedule">
+                <i class="fa-regular fa-calendar"></i>
+                <span>Расписание</span>
+            </a>
+
+            <a href="#tasks" class="nav-link" data-page="tasks">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Мои задания</span>
+            </a>
+
+            <a href="#assistant" class="nav-link" data-page="assistant">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI-помощник</span>
+                <span class="new-label">NEW</span>
+            </a>
+
+            <a href="#focus" class="nav-link" data-page="focus">
+                <i class="fa-solid fa-stopwatch"></i>
+                <span>Фокус-таймер</span>
+            </a>
+
+            <a href="#progress" class="nav-link" data-page="progress">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Мой прогресс</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="help-card">
+                <div class="help-icon">
+                    <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <h4>Учись эффективнее!</h4>
+                <p>Планируй задачи и достигай своих целей вместе с UniMate.</p>
+            </div>
+
+            <div class="profile">
+                <div class="avatar">S</div>
+                <div class="profile-info">
+                    <strong>Student</strong>
+                    <span>Мой аккаунт</span>
+                </div>
+                <i class="fa-solid fa-ellipsis"></i>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="main-content">
+
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+        <header class="topbar">
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="breadcrumb">
+                Workspace <i class="fa-solid fa-chevron-right"></i>
+                <span>Главная</span>
+            </div>
+
+            <div class="topbar-right">
+                <div class="current-date" id="currentDate"></div>
+                <button class="notification-btn">
+                    <i class="fa-regular fa-bell"></i>
+                    <span></span>
+                </button>
+            </div>
+
+        </header>
+
+
+        <!-- СТРАНИЦА: ГЛАВНАЯ -->
+        <section class="page active" id="dashboard">
+
+            <div class="welcome-section">
+                <div>
+                    <span class="welcome-label">ТВОЁ УЧЕБНОЕ ПРОСТРАНСТВО</span>
+                    <h1>Привет, студент! <span>👋</span></h1>
+                    <p>Давай сделаем сегодняшний день продуктивным.</p>
+                </div>
+
+                <div class="welcome-decoration">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+            </div>
+
+
+            <!-- СТАТИСТИКА -->
+            <div class="stats-grid">
+
+                <div class="stat-card purple">
+                    <div class="stat-top">
+                        <span>Всего заданий</span>
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h2 id="totalTasks">0</h2>
+                    <p>В твоём списке</p>
+                </div>
+
+                <div class="stat-card green">
+                    <div class="stat-top">
+                        <span>Выполнено</span>
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h2 id="completedTasks">0</h2>
+                    <p>Отличная работа!</p>
+                </div>
+
+                <div class="stat-card orange">
+                    <div class="stat-top">
+                        <span>Осталось</span>
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <h2 id="pendingTasks">0</h2>
+                    <p>Заданий впереди</p>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-top">
+                        <span>Продуктивность</span>
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <h2 id="productivity">0%</h2>
+                    <p>Выполненных заданий</p>
+                </div>
+
+            </div>
+
+
+            <!-- ОСНОВНЫЕ БЛОКИ -->
+            <div class="dashboard-grid">
+
+                <div class="content-card tasks-preview">
+
+                    <div class="card-heading">
+                        <div>
+                            <h3>Мои задания</h3>
+                            <p>Следи за своими учебными задачами</p>
+                        </div>
+
+                        <button class="text-button" data-goto="tasks">
+                            Все задания <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div id="dashboardTasks" class="task-list">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            <p>Пока нет заданий</p>
+                            <span>Добавь своё первое задание.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="content-card progress-preview">
+
+                    <div class="card-heading">
+                        <div>
+                            <h3>Твой прогресс</h3>
+                            <p>Результаты выполнения задач</p>
+                        </div>
+                    </div>
+
+                    <div class="progress-circle" id="progressCircle">
+                        <div class="progress-inner">
+                            <strong id="progressPercent">0%</strong>
+                            <span>Выполнено</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-description">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Продолжай двигаться к цели!</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- БЫСТРЫЕ ДЕЙСТВИЯ -->
+            <div class="content-card quick-actions">
+
+                <div class="card-heading">
+                    <div>
+                        <h3>Быстрый доступ</h3>
+                        <p>Самые нужные инструменты в одном месте</p>
+                    </div>
+                </div>
+
+                <div class="actions-grid">
+
+                    <button class="action-card" data-goto="tasks">
+                        <div class="action-icon purple-icon">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                        <strong>Добавить задание</strong>
+                        <span>Создать новую задачу</span>
+                    </button>
+
+                    <button class="action-card" data-goto="assistant">
+                        <div class="action-icon blue-icon">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <strong>AI-помощник</strong>
+                        <span>Получить помощь</span>
+                    </button>
+
+                    <button class="action-card" data-goto="focus">
+                        <div class="action-icon green-icon">
+                            <i class="fa-solid fa-stopwatch"></i>
+                        </div>
+                        <strong>Начать фокус</strong>
+                        <span>Время для учёбы</span>
+                    </button>
+
+                    <button class="action-card" data-goto="schedule">
+                        <div class="action-icon orange-icon">
+                            <i class="fa-regular fa-calendar"></i>
+                        </div>
+                        <strong>Расписание</strong>
+                        <span>Посмотреть занятия</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- СТРАНИЦА: РАСПИСАНИЕ -->
+        <section class="page" id="schedule">
+
+            <div class="page-heading">
+                <span class="welcome-label">ОРГАНИЗАЦИЯ УЧЁБЫ</span>
+                <h1>Моё расписание 📅</h1>
+                <p>Планируй занятия и управляй своим временем.</p>
+            </div>
+
+            <div class="content-card">
+                <div class="card-heading">
+                    <div>
+                        <h3>Учебная неделя</h3>
+                        <p>Твоё расписание занятий</p>
+                    </div>
+                </div>
+
+                <div id="scheduleList" class="schedule-list"></div>
+
+                <div class="schedule-form">
+                    <h3>Добавить занятие</h3>
+
+                    <form id="scheduleForm">
+                        <input type="text" id="subjectName"
+                            placeholder="Название предмета" required>
+
+                        <select id="subjectDay" required>
+                            <option value="">Выбери день</option>
+                            <option value="Понедельник">Понедельник</option>
+                            <option value="Вторник">Вторник</option>
+                            <option value="Среда">Среда</option>
+                            <option value="Четверг">Четверг</option>
+                            <option value="Пятница">Пятница</option>
+                            <option value="Суббота">Суббота</option>
+                        </select>
+
+                        <input type="time" id="subjectTime" required>
+
+                        <button type="submit" class="primary-button">
+                            <i class="fa-solid fa-plus"></i> Добавить
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- СТРАНИЦА: ЗАДАНИЯ -->
+        <section class="page" id="tasks">
+
+            <div class="page-heading">
+                <span class="welcome-label">ТВОИ УЧЕБНЫЕ ЦЕЛИ</span>
+                <h1>Мои задания 📝</h1>
+                <p>Ничего не забывай и выполняй задачи вовремя.</p>
+            </div>
+
+            <div class="content-card">
+
+                <div class="card-heading">
+                    <div>
+                        <h3>Список заданий</h3>
+                        <p>Добавляй и отслеживай свои задачи</p>
+                    </div>
+                </div>
+
+                <form id="taskForm" class="task-form">
+
+                    <input type="text" id="taskInput"
+                        placeholder="Например: Подготовить SQL-запросы"
+                        required>
+
+                    <input type="date" id="taskDate">
+
+                    <select id="taskPriority">
+                        <option value="normal">Обычный</option>
+                        <option value="important">Важный</option>
+                        <option value="urgent">Срочный</option>
+                    </select>
+
+                    <button type="submit" class="primary-button">
+                        <i class="fa-solid fa-plus"></i> Добавить
+                    </button>
+
+                </form>
+
+                <div class="task-filters">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="pending">Активные</button>
+                    <button class="filter-btn" data-filter="completed">Выполненные</button>
+                </div>
+
+                <div id="allTasks" class="all-tasks-list"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- СТРАНИЦА: AI-ПОМОЩНИК -->
+        <section class="page" id="assistant">
+
+            <div class="page-heading">
+                <span class="welcome-label">ТВОЙ УЧЕБНЫЙ НАПАРНИК</span>
+                <h1>AI-помощник 🤖</h1>
+                <p>Задавай вопросы, изучай новое и разбирай сложные темы.</p>
+            </div>
+
+            <div class="chat-container">
+
+                <div class="chat-header">
+                    <div class="chat-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+
+                    <div>
+                        <strong>UniMate AI</strong>
+                        <span><i class="fa-solid fa-circle"></i> Онлайн-помощник</span>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+
+                    <div class="message assistant-message">
+                        <div class="message-avatar">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+
+                        <div class="message-content">
+                            <strong>UniMate</strong>
+                            <p>Привет! 👋 Я твой виртуальный помощник. Могу помочь с учёбой, объяснить сложные темы и составить план подготовки. Что будем изучать?</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="chat-suggestions">
+                    <button class="suggestion-btn">Объясни SQL простыми словами</button>
+                    <button class="suggestion-btn">Составь план подготовки к экзамену</button>
+                    <button class="suggestion-btn">Что такое HTML?</button>
+                </div>
+
+                <form id="chatForm" class="chat-input-area">
+                    <input type="text" id="chatInput"
+                        placeholder="Напиши свой вопрос..." autocomplete="off">
+
+                    <button type="submit" aria-label="Отправить сообщение">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+
+                <p class="chat-disclaimer">
+                    Демонстрационный помощник. Ответы могут быть неточными.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- СТРАНИЦА: ФОКУС-ТАЙМЕР -->
+        <section class="page" id="focus">
+
+            <div class="page-heading">
+                <span class="welcome-label">ВРЕМЯ ДЛЯ СЕБЯ</span>
+                <h1>Фокус-таймер ⏱️</h1>
+                <p>Работай с концентрацией и не забывай отдыхать.</p>
+            </div>
+
+            <div class="content-card timer-card">
+
+                <div class="timer-tabs">
+                    <button class="timer-tab active" data-minutes="25">Фокус</button>
+                    <button class="timer-tab" data-minutes="5">Короткий отдых</button>
+                    <button class="timer-tab" data-minutes="15">Длинный отдых</button>
+                </div>
+
+                <div class="timer-circle">
+                    <div class="timer-inner">
+                        <span id="timerDisplay">25:00</span>
+                        <p id="timerStatus">Время продуктивности</p>
+                    </div>
+                </div>
+
+                <div class="timer-controls">
+                    <button id="startTimer" class="primary-button">
+                        <i class="fa-solid fa-play"></i> Начать
+                    </button>
+
+                    <button id="resetTimer" class="secondary-button">
+                        <i class="fa-solid fa-rotate-left"></i> Сбросить
+                    </button>
+                </div>
+
+                <p class="timer-tip">
+                    💡 Совет: убери телефон и сосредоточься на одной задаче.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- СТРАНИЦА: ПРОГРЕСС -->
+        <section class="page" id="progress">
+
+            <div class="page-heading">
+                <span class="welcome-label">ТВОИ ДОСТИЖЕНИЯ</span>
+                <h1>Мой прогресс 📊</h1>
+                <p>Посмотри, сколько ты уже сделал для своей учёбы.</p>
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card purple">
+                    <div class="stat-top">
+                        <span>Всего заданий</span>
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h2 id="progressTotal">0</h2>
+                    <p>Создано задач</p>
+                </div>
+
+                <div class="stat-card green">
+                    <div class="stat-top">
+                        <span>Выполнено</span>
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h2 id="progressCompleted">0</h2>
+                    <p>Готовых задач</p>
+                </div>
+
+                <div class="stat-card orange">
+                    <div class="stat-top">
+                        <span>В процессе</span>
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <h2 id="progressPending">0</h2>
+                    <p>Ожидают выполнения</p>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-top">
+                        <span>Результат</span>
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 id="progressResult">0%</h2>
+                    <p>Общий прогресс</p>
+                </div>
+
+            </div>
+
+            <div class="content-card progress-details">
+                <h3>Твоя статистика</h3>
+                <p>Процент выполненных заданий</p>
+
+                <div class="progress-bar">
+                    <div id="progressBarFill"></div>
+                </div>
+
+                <span id="progressBarText">0% выполнено</span>
+            </div>
+
+        </section>
+
+
+        <!-- ПОДВАЛ -->
+        <footer class="footer">
+            <span>© 2026 UniMate</span>
+            <span>Твой умный напарник в учёбе 🎓</span>
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
