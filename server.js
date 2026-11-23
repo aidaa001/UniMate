@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -74,7 +74,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 // Запуск
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log("--------------------------------");
     console.log("UniMate AI успешно запущен!");
     console.log(`Сервер: http://localhost:${PORT}`);
@@ -82,14 +82,3 @@ app.listen(PORT, () => {
     console.log("--------------------------------");
 });
 
-process.on("beforeExit", (code) => {
-    console.log("UniMate завершает работу. Код:", code);
-});
-
-process.on("exit", (code) => {
-    console.log("UniMate остановлен. Код:", code);
-});
-
-setInterval(() => {
-    console.log("UniMate всё ещё работает");
-}, 5000);
